@@ -4,7 +4,7 @@ const { Pool } = require("pg");
 
 const config = {
   host: "localhost",
-  user: "mauricio",
+  user: "postgres",
   password: "1234",
   database: "redes",
 };
@@ -44,7 +44,7 @@ app.use("/upload", express.static(path.join(__dirname, "/upload")));
 //
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
- /* ESTA PARTE ES DONDE LE DAMOS AUTORIZACION A TODOS LOS CRUDS CON CORS */
+/* ESTA PARTE ES DONDE LE DAMOS AUTORIZACION A TODOS LOS CRUDS CON CORS */
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -54,30 +54,33 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header("Allow", "GET, POST, OPTIONS, PUT, DELETE");
   next();
-}); 
+});
 /**INICIA LOS CRUD PARA DE LA BASE DE DATOS PARA LOS EMPLEADOS */
 /**INICIO DE GET */
 app.get("/api/empleado", cors(), async (req, res) => {
   try {
-    console.log("SI ENTRO A GET")
+    console.log("SI ENTRO A GET");
     const users = await pool.query("select * from empleados");
     return res.send(users.rows);
   } catch (error) {
     console.log("ERROR");
     console.log(error);
-  } 
+  }
 });
 /**FINAL DE GET */
 /**INICIO DE POST */
-app.post("/api/empleado/:nombre/:apellido/:telefono",subir.single("imagen"),cors(),async (req, res, next) => {
+app.post(
+  "/api/empleado/:nombre/:apellido/:telefono",
+  subir.single("imagen"),
+  cors(),
+  async (req, res, next) => {
     const file = req.file;
     if (!file) {
-      var imagenes ="http://redesequipo.ddns.net:8080/upload/imagen-1607291832094.png";
-      
+      var imagenes = "http://localhost:8080/upload/imagen-1607291832094.png";
     } else {
       console.log("si hay datos");
-       var imagenes = "http://redesequipo.ddns.net:8080/";
-        imagenes += file.path.replace("\\", "/");
+      var imagenes = "http://localhost:8080/";
+      imagenes += file.path.replace("\\", "/");
     }
     try {
       console.log(imagenes);
@@ -115,15 +118,19 @@ app.get("/api/empleado/:id", cors(), async (req, res) => {
 });
 /**FIN DE BUSQUEDA */
 /**INICIO DE ACTUALIZAR */
-app.put("/api/empleado/:id/:nombre/:apellido/:telefono",cors(),subir.single("imagen"),async (req, res, next) => {
-    console.log("ENTRO A PUT")
+app.put(
+  "/api/empleado/:id/:nombre/:apellido/:telefono",
+  cors(),
+  subir.single("imagen"),
+  async (req, res, next) => {
+    console.log("ENTRO A PUT");
     const id = req.params.id;
     const file = req.file;
     if (!file) {
-      var imagenes ="http://redesequipo.ddns.net:8080/upload/imagen-1607291832094.png";    
-    }else {
+      var imagenes = "http://localhost:8080/upload/imagen-1607291832094.png";
+    } else {
       console.log("si hay datos");
-      var imagenes = "http://redesequipo.ddns.net:8080/";
+      var imagenes = "http://localhost:8080/";
       imagenes += file.path.replace("\\", "/");
     }
     try {
@@ -154,37 +161,52 @@ app.put("/api/empleado/:id/:nombre/:apellido/:telefono",cors(),subir.single("ima
 );
 /**FIN DE ACTUALIZAR */
 /**INICIO DE BORRAR */
-app.delete("/api/empleado/:id",subir.single("imagen"),cors(),async (req, res, next) => {
-    console.log("ENTRE A DELETE")
+app.delete(
+  "/api/empleado/:id",
+  subir.single("imagen"),
+  cors(),
+  async (req, res, next) => {
+    console.log("ENTRE A DELETE");
     const id = req.params.id;
-    const eliminar = await pool.query("DELETE FROM empleados WHERE id = $1", [id]);
+    const eliminar = await pool.query("DELETE FROM empleados WHERE id = $1", [
+      id,
+    ]);
     res.json({ message: "EL EMPLEADO SE A ELIMINADO" + eliminar.rows });
   }
 );
 /**FIN DE ACTUALIZAR */
 /**INICIO DE LA API */
 /**INICIO DE LOGIN */
-app.get('/appi/login/:usuario/:password',async (req, res, next) => {
-  console.log("EENTOR A GET DE LOGIN")
-  const usuario = req.params.usuario
-  const password = req.params.password
-  console.log("ESTO TRAE LOS PARAS "+ usuario + "  "+ password)
-  const user = await pool.query("select id,usuario FROM usuario WHERE usuario = '"+usuario+"' and password = '"+password+"'")
-  if(user.rows[0] == null) {
-    console.log("NO EXISTE EL USUARIOS")
+app.get("/appi/login/:usuario/:password", async (req, res, next) => {
+  console.log("EENTOR A GET DE LOGIN");
+  const usuario = req.params.usuario;
+  const password = req.params.password;
+  console.log("ESTO TRAE LOS PARAS " + usuario + "  " + password);
+  const user = await pool.query(
+    "select id,usuario FROM usuario WHERE usuario = '" +
+      usuario +
+      "' and password = '" +
+      password +
+      "'"
+  );
+  if (user.rows[0] == null) {
+    console.log("NO EXISTE EL USUARIOS");
     return res.send(null);
-  }else{
-    return res.send(user.rows)
+  } else {
+    return res.send(user.rows);
   }
-})
+});
 /**FIN DE LOGIN */
 /**INICIO DEL REGISTRO */
-app.post('/appi/registro',async (req, res) => {
-  const {usuario, password,email} = req.body;
-  console.log(usuario,password,email)
-  const users = await pool.query("INSERT INTO usuario (usuario,password,email) VALUES ($1,$2,$3)",[usuario,password,email])
-  return res.send(users.rows)
-})
+app.post("/appi/registro", async (req, res) => {
+  const { usuario, password, email } = req.body;
+  console.log(usuario, password, email);
+  const users = await pool.query(
+    "INSERT INTO usuario (usuario,password,email) VALUES ($1,$2,$3)",
+    [usuario, password, email]
+  );
+  return res.send(users.rows);
+});
 /**FIN DEL REGISTRO */
 
 /**ESTE EJECUTA TODO EL INDEX CON EL PUERTO DEL INICIO */
