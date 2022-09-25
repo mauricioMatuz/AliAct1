@@ -208,7 +208,12 @@ app.post("/appi/registro", async (req, res) => {
   return res.send(users.rows);
 });
 /**FIN DEL REGISTRO */
-
+app.get("/", async(req,res) =>{
+  const users = awit pool.query("SELECT * FROM usuario");
+  res.json(rows);
+  res.json("SI JSON");
+  console.log("SI CONSOLE");
+});
 /**ESTE EJECUTA TODO EL INDEX CON EL PUERTO DEL INICIO */
 
 app.listen(PORT, () => console.log("servidor activo: " + PORT));
