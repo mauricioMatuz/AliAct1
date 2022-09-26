@@ -3,10 +3,12 @@ const { error } = require("console");
 const { Pool } = require("pg");
 
 const config = {
-  host: "localhost",
-  user: "postgres",
+  //host: "44.203.195.203",
+  host: "ec2-44-201-146-190.compute-1.amazonaws.com",
+  user: "mauricio",
   password: "1234",
-  database: "redes",
+  port: 5432,
+  database: "soa",
 };
 
 const pool = new Pool(config);
@@ -76,10 +78,10 @@ app.post(
   async (req, res, next) => {
     const file = req.file;
     if (!file) {
-      var imagenes = "http://localhost:8080/upload/imagen-1607291832094.png";
+      var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/upload/noImage.png";
     } else {
       console.log("si hay datos");
-      var imagenes = "http://localhost:8080/";
+      var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/";
       imagenes += file.path.replace("\\", "/");
     }
     try {
@@ -107,14 +109,18 @@ app.post(
 /**FIN DE POST */
 /**INICIO DE BUSQUEDA */
 app.get("/api/empleado/:id", cors(), async (req, res) => {
-  const id = req.params.id;
-  console.log(id + " ESOT ES MI ID");
-  const empeladoss = await pool.query(
-    "select * from empleados where id = $1 ",
-    [id]
-  );
-  res.json({ message: empeladoss.rows });
-  console.log(empeladoss);
+  try {
+    const id = req.params.id;
+    console.log(id + " ESOT ES MI ID");
+    const empeladoss = await pool.query(
+      "select * from empleados where id = $1 ",
+      [id]
+    );
+    res.json({ message: empeladoss.rows });
+    console.log(empeladoss);
+  } catch (error) {
+    console.log("ERROR", error);
+  }
 });
 /**FIN DE BUSQUEDA */
 /**INICIO DE ACTUALIZAR */
@@ -127,10 +133,10 @@ app.put(
     const id = req.params.id;
     const file = req.file;
     if (!file) {
-      var imagenes = "http://localhost:8080/upload/imagen-1607291832094.png";
+      var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/upload/noImage.png";
     } else {
       console.log("si hay datos");
-      var imagenes = "http://localhost:8080/";
+      var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/";
       imagenes += file.path.replace("\\", "/");
     }
     try {
@@ -166,53 +172,67 @@ app.delete(
   subir.single("imagen"),
   cors(),
   async (req, res, next) => {
-    console.log("ENTRE A DELETE");
-    const id = req.params.id;
-    const eliminar = await pool.query("DELETE FROM empleados WHERE id = $1", [
-      id,
-    ]);
-    res.json({ message: "EL EMPLEADO SE A ELIMINADO" + eliminar.rows });
+    try {
+      console.log("ENTRE A DELETE");
+      const id = req.params.id;
+      const eliminar = await pool.query("DELETE FROM empleados WHERE id = $1", [
+        id,
+      ]);
+      res.json({ message: "EL EMPLEADO SE A ELIMINADO" + eliminar.rows });
+    } catch (error) {
+      console.log("ERROR ", error);
+    }
   }
 );
 /**FIN DE ACTUALIZAR */
 /**INICIO DE LA API */
 /**INICIO DE LOGIN */
 app.get("/appi/login/:usuario/:password", async (req, res, next) => {
-  console.log("EENTOR A GET DE LOGIN");
-  const usuario = req.params.usuario;
-  const password = req.params.password;
-  console.log("ESTO TRAE LOS PARAS " + usuario + "  " + password);
-  const user = await pool.query(
-    "select id,usuario FROM usuario WHERE usuario = '" +
-      usuario +
-      "' and password = '" +
-      password +
-      "'"
-  );
-  if (user.rows[0] == null) {
-    console.log("NO EXISTE EL USUARIOS");
-    return res.send(null);
-  } else {
-    return res.send(user.rows);
+  try {
+    console.log("EENTOR A GET DE LOGIN");
+    const usuario = req.params.usuario;
+    const password = req.params.password;
+    console.log("ESTO TRAE LOS PARAS " + usuario + "  " + password);
+    const user = await pool.query(
+      "select id,usuario FROM usuario WHERE usuario = '" +
+        usuario +
+        "' and password = '" +
+        password +
+        "'"
+    );
+    if (user.rows[0] == null) {
+      console.log("NO EXISTE EL USUARIOS");
+      return res.send(null);
+    } else {
+      return res.send(user.rows);
+    }
+  } catch (error) {
+    console.log("ERROR: " + error);
   }
 });
 /**FIN DE LOGIN */
 /**INICIO DEL REGISTRO */
 app.post("/appi/registro", async (req, res) => {
-  const { usuario, password, email } = req.body;
-  console.log(usuario, password, email);
-  const users = await pool.query(
-    "INSERT INTO usuario (usuario,password,email) VALUES ($1,$2,$3)",
-    [usuario, password, email]
-  );
-  return res.send(users.rows);
+  try {
+    const { usuario, password, email } = req.body;
+    console.log(usuario, password, email);
+    const users = await pool.query(
+      "INSERT INTO usuario (usuario,password,email) VALUES ($1,$2,$3)",
+      [usuario, password, email]
+    );
+    return res.send(users.rows);
+  } catch (error) {
+    console.log("ERROR ", error);
+  }
 });
 /**FIN DEL REGISTRO */
-app.get("/", async(req,res) =>{
-  const users = awit pool.query("SELECT * FROM usuario");
-  res.json(rows);
-  res.json("SI JSON");
-  console.log("SI CONSOLE");
+app.get("/", async (req, res) => {
+  try {
+    const users = await pool.query("SELECT * FROM usuario");
+    res.json(users.rows);
+  } catch (error) {
+    console.log("ERROR ", error);
+  }
 });
 /**ESTE EJECUTA TODO EL INDEX CON EL PUERTO DEL INICIO */
 
