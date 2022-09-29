@@ -4,7 +4,7 @@ const { Pool } = require("pg");
 
 const config = {
   //host: "44.203.195.203",
-  host: "ec2-44-201-146-190.compute-1.amazonaws.com",
+  host: "ec2-34-226-10-158.compute-1.amazonaws.com",
   user: "mauricio",
   password: "1234",
   port: 5432,
@@ -78,7 +78,8 @@ app.post(
   async (req, res, next) => {
     const file = req.file;
     if (!file) {
-      var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/upload/noImage.png";
+      var imagenes =
+        "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/upload/noImage.png";
     } else {
       console.log("si hay datos");
       var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/";
@@ -133,7 +134,8 @@ app.put(
     const id = req.params.id;
     const file = req.file;
     if (!file) {
-      var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/upload/noImage.png";
+      var imagenes =
+        "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/upload/noImage.png";
     } else {
       console.log("si hay datos");
       var imagenes = "http://ec2-18-234-162-185.compute-1.amazonaws.com:8080/";
@@ -185,55 +187,55 @@ app.delete(
   }
 );
 /**FIN DE ACTUALIZAR */
-/**INICIO DE LA API */
-/**INICIO DE LOGIN */
-app.get("/appi/login/:usuario/:password", async (req, res, next) => {
-  try {
-    console.log("EENTOR A GET DE LOGIN");
-    const usuario = req.params.usuario;
-    const password = req.params.password;
-    console.log("ESTO TRAE LOS PARAS " + usuario + "  " + password);
-    const user = await pool.query(
-      "select id,usuario FROM usuario WHERE usuario = '" +
-        usuario +
-        "' and password = '" +
-        password +
-        "'"
-    );
-    if (user.rows[0] == null) {
-      console.log("NO EXISTE EL USUARIOS");
-      return res.send(null);
-    } else {
-      return res.send(user.rows);
-    }
-  } catch (error) {
-    console.log("ERROR: " + error);
-  }
-});
-/**FIN DE LOGIN */
-/**INICIO DEL REGISTRO */
-app.post("/appi/registro", async (req, res) => {
-  try {
-    const { usuario, password, email } = req.body;
-    console.log(usuario, password, email);
-    const users = await pool.query(
-      "INSERT INTO usuario (usuario,password,email) VALUES ($1,$2,$3)",
-      [usuario, password, email]
-    );
-    return res.send(users.rows);
-  } catch (error) {
-    console.log("ERROR ", error);
-  }
-});
-/**FIN DEL REGISTRO */
-app.get("/", async (req, res) => {
-  try {
-    const users = await pool.query("SELECT * FROM usuario");
-    res.json(users.rows);
-  } catch (error) {
-    console.log("ERROR ", error);
-  }
-});
+// /**INICIO DE LA API */
+// /**INICIO DE LOGIN */
+// app.get("/appi/login/:usuario/:password", async (req, res, next) => {
+//   try {
+//     console.log("EENTOR A GET DE LOGIN");
+//     const usuario = req.params.usuario;
+//     const password = req.params.password;
+//     console.log("ESTO TRAE LOS PARAS " + usuario + "  " + password);
+//     const user = await pool.query(
+//       "select id,usuario FROM usuario WHERE usuario = '" +
+//         usuario +
+//         "' and password = '" +
+//         password +
+//         "'"
+//     );
+//     if (user.rows[0] == null) {
+//       console.log("NO EXISTE EL USUARIOS");
+//       return res.send(null);
+//     } else {
+//       return res.send(user.rows);
+//     }
+//   } catch (error) {
+//     console.log("ERROR: " + error);
+//   }
+// });
+// /**FIN DE LOGIN */
+// /**INICIO DEL REGISTRO */
+// app.post("/appi/registro", async (req, res) => {
+//   try {
+//     const { usuario, password, email } = req.body;
+//     console.log(usuario, password, email);
+//     const users = await pool.query(
+//       "INSERT INTO usuario (usuario,password,email) VALUES ($1,$2,$3)",
+//       [usuario, password, email]
+//     );
+//     return res.send(users.rows);
+//   } catch (error) {
+//     console.log("ERROR ", error);
+//   }
+// });
+// /**FIN DEL REGISTRO */
+// app.get("/", async (req, res) => {
+//   try {
+//     const users = await pool.query("SELECT * FROM usuario");
+//     res.json(users.rows);
+//   } catch (error) {
+//     console.log("ERROR ", error);
+//   }
+// });
 /**ESTE EJECUTA TODO EL INDEX CON EL PUERTO DEL INICIO */
 
 app.listen(PORT, () => console.log("servidor activo: " + PORT));
